@@ -17,3 +17,10 @@ unless File.exist?(test_db_path)
 end
 
 Imessage::Db.chat_db_path = test_db_path
+
+# Establish database connection for tests
+begin
+  Imessage::Db::Database.establish_connection!
+rescue Imessage::Db::Error => e
+  puts "Warning: #{e.message}"
+end

@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-`imessage-db` is a RubyGem that provides **Rails-friendly ActiveRecord models and utilities** for working with the macOS Messages app’s database (`~/Library/Messages/chat.db`).  
+`imessage-db` is a RubyGem that provides **Rails-friendly ActiveRecord models and utilities** for working with the macOS Messages app’s database (`~/Library/Messages/chat.db`).
 
 The gem will let developers:
 - Read **chats**, **messages**, **handles** (contacts), and **attachments** directly from `chat.db`.
@@ -10,8 +10,8 @@ The gem will let developers:
 - Build Rails applications (or admin panels) that surface iMessage/SMS data locally.
 - Run tests and demos that confirm correct permissions are set (Full Disk Access).
 
-**Important note:**  
-This gem is **not for App Store distribution** and is **single-user / local only**, since it requires Full Disk Access on macOS.  
+**Important note:**
+This gem is **not for App Store distribution** and is **single-user / local only**, since it requires Full Disk Access on macOS.
 
 ---
 
@@ -108,7 +108,7 @@ This gem is **not for App Store distribution** and is **single-user / local only
 ### Full Disk Access Setup
 - **Documentation** must explain:
   - Why Full Disk Access is needed (`~/Library/Messages/chat.db` is protected by TCC).
-  - How to add Terminal, iTerm, or the Rails app itself in:  
+  - How to add Terminal, iTerm, or the Rails app itself in:
     `System Settings → Privacy & Security → Full Disk Access`.
   - How to verify with:
     ```bash
@@ -187,7 +187,7 @@ end
   - Connection isolation to preserve existing Rails database configurations
 - [x] **Join Models**: Complete set of association models with clean naming
   - `ChatMessage` model for chat-message relationships
-  - `ChatHandle` model for chat-participant relationships  
+  - `ChatHandle` model for chat-participant relationships
   - `MessageAttachment` model for message-attachment relationships
   - All models properly configured with table names and associations
 - [x] **Comprehensive Minitest Test Suite**: 49 tests with 186 assertions covering:
@@ -205,11 +205,11 @@ end
 - [x] **Full Disk Access Integration**: Proper permission handling and user guidance
 
 ### 🚧 **Next Phase (Remaining Deliverables)**
-- [ ] **Primary ActiveRecord Models**: Core entity models with full functionality
+- [x] **Primary ActiveRecord Models**: Core entity models with full functionality
   - `Handle` model for contacts (phone numbers, emails) with scopes and validation
   - `Chat` model for conversations with participant management
   - `Attachment` model for files, images, videos with type detection
-- [ ] **Model Associations**: Complete ActiveRecord relationships between all models
+- [x] **Model Associations**: Complete ActiveRecord relationships between all models
   - `Chat has_many :messages, through: :chat_messages`
   - `Chat has_many :handles, through: :chat_handles`
   - `Message has_many :attachments, through: :message_attachments`

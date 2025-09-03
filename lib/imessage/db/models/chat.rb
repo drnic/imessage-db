@@ -7,9 +7,9 @@ module Imessage
       self.primary_key = "ROWID"
 
       # Associations
-      has_many :chat_message_joins, foreign_key: "chat_id", primary_key: "ROWID"
+      has_many :chat_message_joins, class_name: "ChatMessage", foreign_key: "chat_id", primary_key: "ROWID"
       has_many :messages, through: :chat_message_joins, foreign_key: "chat_id", primary_key: "ROWID"
-      has_many :chat_handle_joins, foreign_key: "chat_id", primary_key: "ROWID"
+      has_many :chat_handle_joins, class_name: "ChatHandle", foreign_key: "chat_id", primary_key: "ROWID"
       has_many :handles, through: :chat_handle_joins, foreign_key: "chat_id", primary_key: "ROWID"
 
       # Scopes
@@ -18,6 +18,24 @@ module Imessage
       scope :sms, -> { where(service_name: "SMS") }
       scope :group_chats, -> { where.not(display_name: [nil, ""]) }
       scope :direct_messages, -> { where(display_name: [nil, ""]) }
+      scope :recent, -> { joins(:messages).group("chat.ROWID").order("MAX(message.date) DESC") }
+      scope :active, -> { recent }
+
+      # Find chats with a specific participant (phone or email)
+      scope :with_participant, ->(identifier) {
+        return none unless identifier.present?
+
+        # Normalize the identifier (remove non-digits from phone numbers)
+        normalized = identifier.to_s.gsub(/[^\d@.]/, "")
+
+        # Search in multiple formats
+        joins(:handles).where(
+          "handle.id LIKE ? OR handle.id LIKE ? OR handle.id LIKE ?",
+          "%#{identifier}%",
+          "%#{normalized}%",
+          "+1#{normalized}"
+        ).distinct
+      }
 
       # Convenience methods
       def imessage?
@@ -47,7 +65,7 @@ module Imessage
       # Parse participants from chat_identifier for direct messages
       def participant_identifiers
         return [] unless chat_identifier
-        
+
         # Chat identifiers are typically semicolon-separated for group chats
         # or single identifiers for direct messages
         chat_identifier.split(";").map(&:strip)

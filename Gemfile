@@ -11,3 +11,5 @@ gem "rake", "~> 13.0"
 gem "minitest", "~> 5.16"
 gem "rails", "~> 7.0"
 gem "sqlite3", "~> 1.4"
+
+gem "standardrb", "~> 1.0"

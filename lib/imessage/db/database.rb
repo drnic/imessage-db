@@ -8,7 +8,7 @@ module Imessage
       class << self
         def establish_connection!
           db_path = Imessage::Db.chat_db_path
-          
+
           # Skip Full Disk Access check for test database
           unless File.exist?(db_path)
             if db_path.include?("test.db")
@@ -25,28 +25,29 @@ module Imessage
             adapter: "sqlite3",
             database: db_path
           }
-          
+
           # Only apply readonly flag to the real Messages database
           unless db_path.include?("test.db")
             connection_config[:flags] = SQLite3::Constants::Open::READONLY
           end
-          
-          ActiveRecord::Base.establish_connection(connection_config)
+
+          # Connect via ApplicationRecord to isolate from ActiveRecord::Base
+          Imessage::Db::ApplicationRecord.establish_connection(connection_config)
         end
 
         def with_connection(&block)
           # Store the original connection
-          original_connection = ActiveRecord::Base.connection_pool.spec if ActiveRecord::Base.connected?
-          
+          original_connection = Imessage::Db::ApplicationRecord.connection_pool.spec if Imessage::Db::ApplicationRecord.connected?
+
           begin
             establish_connection!
             yield
           ensure
             # Restore the original connection if there was one
             if original_connection
-              ActiveRecord::Base.establish_connection(original_connection.config)
+              Imessage::Db::ApplicationRecord.establish_connection(original_connection.config)
             else
-              ActiveRecord::Base.remove_connection
+              Imessage::Db::ApplicationRecord.remove_connection
             end
           end
         end

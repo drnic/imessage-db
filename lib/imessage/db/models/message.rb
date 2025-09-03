@@ -9,9 +9,9 @@ module Imessage
 
       # Associations
       belongs_to :handle, foreign_key: "handle_id", primary_key: "ROWID", optional: true
-      has_many :chat_message_joins, foreign_key: "message_id", primary_key: "ROWID"
+      has_many :chat_message_joins, class_name: "ChatMessage", foreign_key: "message_id", primary_key: "ROWID"
       has_many :chats, through: :chat_message_joins, foreign_key: "message_id", primary_key: "ROWID"
-      has_many :message_attachment_joins, foreign_key: "message_id", primary_key: "ROWID"
+      has_many :message_attachment_joins, class_name: "MessageAttachment", foreign_key: "message_id", primary_key: "ROWID"
       has_many :attachments, through: :message_attachment_joins, foreign_key: "message_id", primary_key: "ROWID"
 
       # Convert Apple nanosecond timestamps to Ruby Time objects
@@ -39,6 +39,14 @@ module Imessage
       # Service types
       scope :imessage, -> { where(service: "iMessage") }
       scope :sms, -> { where(service: "SMS") }
+
+      # Find messages in a specific chat
+      scope :in_chat, ->(chat) {
+        return none unless chat
+
+        chat_id = chat.is_a?(Chat) ? chat.ROWID : chat
+        joins(:chat_message_joins).where(chat_message_join: {chat_id: chat_id})
+      }
 
       # Convenience methods
       def from_me?

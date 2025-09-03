@@ -23,7 +23,7 @@ class ChatHandleIntegrationTest < Minitest::Test
     unless Imessage::Db.full_disk_access?
       skip "Full Disk Access not available. Please enable it in System Settings > Privacy & Security > Full Disk Access"
     end
-    
+
     Imessage::Db::Database.establish_connection!
   end
 
@@ -39,7 +39,7 @@ class ChatHandleIntegrationTest < Minitest::Test
   def test_can_load_chat_handles
     chat_handles = Imessage::Db::ChatHandle.limit(5)
     assert_kind_of ActiveRecord::Relation, chat_handles
-    
+
     if chat_handles.any?
       chat_handle = chat_handles.first
       assert_kind_of Imessage::Db::ChatHandle, chat_handle
@@ -50,11 +50,11 @@ class ChatHandleIntegrationTest < Minitest::Test
 
   def test_belongs_to_chat_association
     chat_handle = Imessage::Db::ChatHandle.first
-    
+
     if chat_handle
       # Test that the association method exists and can be called
       assert_respond_to chat_handle, :chat
-      
+
       # Note: We can't test the actual association without Chat model being loaded
       # This test just ensures the association is defined correctly
     end
@@ -62,11 +62,11 @@ class ChatHandleIntegrationTest < Minitest::Test
 
   def test_belongs_to_handle_association
     chat_handle = Imessage::Db::ChatHandle.first
-    
+
     if chat_handle
       # Test that the association method exists and can be called
       assert_respond_to chat_handle, :handle
-      
+
       # Note: We can't test the actual association without Handle model being loaded
       # This test just ensures the association is defined correctly
     end
@@ -74,7 +74,7 @@ class ChatHandleIntegrationTest < Minitest::Test
 
   def test_foreign_key_constraints
     chat_handle = Imessage::Db::ChatHandle.first
-    
+
     if chat_handle
       assert chat_handle.chat_id.is_a?(Integer)
       assert chat_handle.handle_id.is_a?(Integer)
@@ -86,7 +86,7 @@ class ChatHandleIntegrationTest < Minitest::Test
   def test_unique_chat_handle_combinations
     # Test that we can find unique combinations of chat_id and handle_id
     chat_handles = Imessage::Db::ChatHandle.limit(10)
-    
+
     if chat_handles.count > 1
       combinations = chat_handles.map { |ch| [ch.chat_id, ch.handle_id] }
       # Note: The actual uniqueness constraint is in the database schema

@@ -23,7 +23,7 @@ class MessageAttachmentIntegrationTest < Minitest::Test
     unless Imessage::Db.full_disk_access?
       skip "Full Disk Access not available. Please enable it in System Settings > Privacy & Security > Full Disk Access"
     end
-    
+
     Imessage::Db::Database.establish_connection!
   end
 
@@ -39,7 +39,7 @@ class MessageAttachmentIntegrationTest < Minitest::Test
   def test_can_load_message_attachments
     message_attachments = Imessage::Db::MessageAttachment.limit(5)
     assert_kind_of ActiveRecord::Relation, message_attachments
-    
+
     if message_attachments.any?
       message_attachment = message_attachments.first
       assert_kind_of Imessage::Db::MessageAttachment, message_attachment
@@ -50,11 +50,11 @@ class MessageAttachmentIntegrationTest < Minitest::Test
 
   def test_belongs_to_message_association
     message_attachment = Imessage::Db::MessageAttachment.first
-    
+
     if message_attachment
       # Test that the association method exists and can be called
       assert_respond_to message_attachment, :message
-      
+
       # Test that we can load the associated message
       message = message_attachment.message
       if message
@@ -66,11 +66,11 @@ class MessageAttachmentIntegrationTest < Minitest::Test
 
   def test_belongs_to_attachment_association
     message_attachment = Imessage::Db::MessageAttachment.first
-    
+
     if message_attachment
       # Test that the association method exists and can be called
       assert_respond_to message_attachment, :attachment
-      
+
       # Note: We can't test the actual association without Attachment model being loaded
       # This test just ensures the association is defined correctly
     end
@@ -78,7 +78,7 @@ class MessageAttachmentIntegrationTest < Minitest::Test
 
   def test_foreign_key_constraints
     message_attachment = Imessage::Db::MessageAttachment.first
-    
+
     if message_attachment
       assert message_attachment.message_id.is_a?(Integer)
       assert message_attachment.attachment_id.is_a?(Integer)
@@ -92,7 +92,7 @@ class MessageAttachmentIntegrationTest < Minitest::Test
     messages_with_attachments = Imessage::Db::Message
       .joins("JOIN message_attachment_join ON message.ROWID = message_attachment_join.message_id")
       .limit(3)
-    
+
     messages_with_attachments.each do |message|
       assert_kind_of Imessage::Db::Message, message
       # Verify the message has the cache_has_attachments flag set (if available)
@@ -109,7 +109,7 @@ class MessageAttachmentIntegrationTest < Minitest::Test
       .group(:message_id)
       .count
       .first(5)
-    
+
     message_attachment_counts.each do |message_id, count|
       assert message_id.is_a?(Integer)
       assert count.is_a?(Integer)

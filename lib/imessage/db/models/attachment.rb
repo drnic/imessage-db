@@ -7,7 +7,7 @@ module Imessage
       self.primary_key = "ROWID"
 
       # Associations
-      has_many :message_attachment_joins, foreign_key: "attachment_id", primary_key: "ROWID"
+      has_many :message_attachment_joins, class_name: "MessageAttachment", foreign_key: "attachment_id", primary_key: "ROWID"
       has_many :messages, through: :message_attachment_joins, foreign_key: "attachment_id", primary_key: "ROWID"
 
       # Scopes
@@ -15,7 +15,16 @@ module Imessage
       scope :videos, -> { where("mime_type LIKE ?", "video/%") }
       scope :audio, -> { where("mime_type LIKE ?", "audio/%") }
       scope :documents, -> { where.not("mime_type LIKE ? OR mime_type LIKE ? OR mime_type LIKE ?", "image/%", "video/%", "audio/%") }
+      scope :files, -> { documents } # Alias for documents
       scope :with_files, -> { where.not(filename: [nil, ""]) }
+
+      # Find attachments for a specific message
+      scope :for_message, ->(message) {
+        return none unless message
+
+        message_id = message.is_a?(Message) ? message.ROWID : message
+        joins(:message_attachment_joins).where(message_attachment_join: {message_id: message_id})
+      }
 
       # Convenience methods
       def image?
@@ -54,14 +63,13 @@ module Imessage
       end
 
       def file_type_description
-        case
-        when image?
+        if image?
           "Image"
-        when video?
+        elsif video?
           "Video"
-        when audio?
+        elsif audio?
           "Audio"
-        when document?
+        elsif document?
           "Document"
         else
           "File"
