@@ -8,3 +8,4 @@
 /tmp/
 /db/test.db
 Gemfile.lock
+*.local.json

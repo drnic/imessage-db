@@ -6,7 +6,10 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:github.com)",
       "Bash(sqlite3:*)",
-      "Bash(ruby:*)"
+      "Bash(ruby:*)",
+      "Bash(DEBUG=1 bundle exec ruby -Ilib:test test/typedstream/test_real_world_data.rb -n test_debug_real_data_structure)",
+      "Bash(DEBUG_EXTRACTION=1 bundle exec ruby -Ilib:test test/typedstream/test_attributed_string.rb -n test_from_objects_finds_any_string_value)",
+      "Bash(DEBUG=1 bundle exec ruby -Ilib:test test/typedstream/test_extracted_real_data.rb -n test_debug_string_extraction_priorities)"
     ],
     "deny": [],
     "ask": []

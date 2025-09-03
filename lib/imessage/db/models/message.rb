@@ -155,6 +155,59 @@ module Imessage
       def has_links?
         text_attributes.any? { |key, value| key.to_s =~ /link|url/i || value.to_s =~ /link|url/i }
       end
+
+      # HTML and Markdown conversion methods
+
+      # Convert message content to HTML with optional link attributes
+      def to_html(options = {})
+        if attr_string = attributed_string
+          attr_string.to_html(options)
+        else
+          # Fallback: HTML-escape plain text
+          html_escape(text.to_s)
+        end
+      end
+
+      # Convert message content to Markdown
+      def to_markdown
+        if attr_string = attributed_string
+          attr_string.to_markdown
+        else
+          # Plain text is already valid Markdown
+          text.to_s
+        end
+      end
+
+      # Convert message content to plain text (for compatibility)
+      def to_text
+        content
+      end
+
+      # Get message content in specified format
+      def content_as(format, options = {})
+        case format.to_s.downcase
+        when "html"
+          to_html(options)
+        when "markdown", "md"
+          to_markdown
+        when "text", "plain"
+          to_text
+        else
+          raise ArgumentError, "Unknown format: #{format}. Supported formats: html, markdown, text"
+        end
+      end
+
+      private
+
+      def html_escape(text)
+        return "" if text.nil?
+
+        text.gsub("&", "&amp;")
+          .gsub("<", "&lt;")
+          .gsub(">", "&gt;")
+          .gsub('"', "&quot;")
+          .gsub("'", "&#39;")
+      end
     end
   end
 end

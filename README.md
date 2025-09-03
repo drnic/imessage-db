@@ -10,8 +10,9 @@ A RubyGem that provides **Rails-friendly ActiveRecord models** for reading your 
 `imessage-db` lets you access your macOS Messages database (`~/Library/Messages/chat.db`) through ActiveRecord models, making it easy to:
 
 - 📨 **Read messages** with proper time conversion from Apple's epoch format
+- 🎨 **Access rich formatting** - bold, italic, links, and attributed text from iMessages
 - 🔍 **Query conversations** using ActiveRecord scopes and associations
-- 📊 **Analyze messaging patterns** and conversation history
+- 📊 **Analyze messaging patterns** and conversation history with formatting insights
 - 🛠️ **Build Rails apps** that surface your iMessage/SMS data locally
 - ⚡ **Run console commands** to explore your message data interactively
 
@@ -23,9 +24,11 @@ A RubyGem that provides **Rails-friendly ActiveRecord models** for reading your 
 - **All Core Models**: `Message`, `Chat`, `Handle`, `Attachment` with full associations
 - **Join Models**: `ChatMessage`, `ChatHandle`, `MessageAttachment` associations
 - **Apple Time Conversion**: Automatic conversion from Apple epoch to Ruby Time
+- **TypedStream Decoder**: Full support for Apple's binary attributed string format
+- **Rich Text Support**: Access formatted text, bold, italic, links in iMessages
 - **Database Connection**: Secure, read-only access with permission detection
 - **Extended Scopes**: Advanced querying with `Chat.with_participant`, `Message.in_chat`, etc.
-- **Comprehensive Testing**: 105 tests with 245 assertions
+- **Comprehensive Testing**: 182 tests with 462 assertions including HTML/Markdown conversion
 - **Rails Engine**: Drop-in compatibility with Rails applications
 
 ### 🔧 Core Message Capabilities
@@ -41,11 +44,27 @@ message.imessage?    # => true (blue bubble)
 message.sms?         # => true (green bubble)
 message.tapback?     # => true (reactions like ❤️, 👍, etc)
 
+# Rich text and formatting support (NEW!)
+message.content              # => Best available text (attributed or plain)
+message.attributed_text      # => Rich text content from attributedBody
+message.has_formatting?      # => true if message has rich formatting
+message.has_bold_text?       # => true if contains bold text
+message.has_italic_text?     # => true if contains italic text
+message.has_links?           # => true if contains links
+
+# HTML and Markdown conversion (NEW!)
+message.to_html              # => "<strong>Bold text</strong>"
+message.to_markdown          # => "**Bold text**"
+message.content_as(:html)    # => HTML with custom options
+message.content_as(:markdown) # => Markdown format
+
 # Rich scoping
 Message.recent.limit(10)           # Last 10 messages
 Message.from_me.imessage          # Your iMessages
 Message.to_me.sms                 # SMS you received
 Message.with_text                 # Messages with text content
+Message.with_attributed_text      # Messages with rich formatting (NEW!)
+Message.with_formatting           # Alias for with_attributed_text (NEW!)
 Message.in_chat(chat)             # Messages in specific chat
 ```
 
@@ -66,7 +85,8 @@ class MessagesController < ApplicationController
     @stats = {
       total: Imessage::Db::Message.count,
       imessage: Imessage::Db::Message.imessage.count,
-      sms: Imessage::Db::Message.sms.count
+      sms: Imessage::Db::Message.sms.count,
+      formatted: Imessage::Db::Message.with_formatting.count  # NEW!
     }
   end
 
@@ -74,6 +94,23 @@ class MessagesController < ApplicationController
     @chat = Imessage::Db::Chat.find(params[:id])
     @messages = Imessage::Db::Message.in_chat(@chat).recent
     @participants = @chat.handles
+    
+    # Respond with different formats (NEW!)
+    respond_to do |format|
+      format.html  # Regular view
+      format.json { render json: @messages.map(&:to_html) }  # HTML content
+      format.text { render plain: @messages.map(&:to_text).join("\n") }
+    end
+  end
+
+  def export
+    # Export messages as Markdown (NEW!)
+    @messages = Imessage::Db::Message.recent.limit(100)
+    markdown_content = @messages.map(&:to_markdown).join("\n\n")
+    
+    send_data markdown_content, 
+              filename: "messages_export.md", 
+              type: "text/markdown"
   end
 end
 ```
@@ -84,8 +121,138 @@ end
 - ✅ Works alongside PostgreSQL, MySQL, or any Rails database
 - ✅ All models are namespaced under `Imessage::Db::`
 - ✅ Read-only access ensures your Messages are never modified
+- ✅ Robust TypedStream decoder with infinite loop protection
 
 Just add the gem and start querying! See [Full Disk Access Setup](#-full-disk-access-setup-required) below for permissions.
+
+### Rails View Integration (NEW!)
+```erb
+<!-- app/views/messages/show.html.erb -->
+<div class="message-thread">
+  <% @messages.each do |message| %>
+    <div class="message <%= 'from-me' if message.from_me? %>">
+      <div class="message-content">
+        <% if message.has_formatting? %>
+          <!-- Render rich HTML with secure link attributes -->
+          <%= raw message.to_html(link_attributes: { 
+                target: "_blank", 
+                rel: "noopener nofollow",
+                class: "message-link"
+              }) %>
+          <span class="formatting-badge">📝 Rich Text</span>
+        <% else %>
+          <!-- Render plain text (automatically HTML-escaped) -->
+          <%= raw message.to_html %>
+        <% end %>
+      </div>
+      
+      <div class="message-meta">
+        <span class="service-badge <%= message.service.downcase %>">
+          <%= message.service %>
+        </span>
+        <time><%= message.sent_at %></time>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Export buttons -->
+<div class="export-actions">
+  <%= link_to "Export as Markdown", export_path(format: :md), 
+              class: "btn btn-outline" %>
+  <%= link_to "Export as HTML", export_path(format: :html), 
+              class: "btn btn-outline" %>
+</div>
+```
+
+## 📝 Rich Text & Attributed Strings (NEW!)
+
+The gem now includes a complete **Apple TypedStream decoder** for accessing rich text formatting in iMessages:
+
+### ✨ Formatted Text Support
+```ruby
+# Access rich text content with fallback to plain text
+message = Imessage::Db::Message.find(12345)
+puts message.content  # Returns best available content
+
+# Check for formatting
+if message.has_formatting?
+  puts "📝 Message has rich formatting!"
+  puts "Bold: #{message.has_bold_text?}"
+  puts "Italic: #{message.has_italic_text?}"  
+  puts "Links: #{message.has_links?}"
+end
+
+# Access the full attributed string object
+if attr_string = message.attributed_string
+  puts "Text: #{attr_string.plain_text}"
+  puts "Attributes: #{attr_string.attributes}"
+end
+```
+
+### 🎨 HTML & Markdown Conversion (NEW!)
+```ruby
+# Convert messages to HTML for web display
+message.to_html
+# => "<strong>Bold text</strong> with <a href='https://example.com'>link</a>"
+
+# Convert to Markdown for documentation
+message.to_markdown  
+# => "**Bold text** with [link](https://example.com)"
+
+# Flexible format conversion
+message.content_as(:html)       # HTML format
+message.content_as(:markdown)   # Markdown format  
+message.content_as(:text)       # Plain text
+
+# HTML with custom link attributes for security
+message.to_html(link_attributes: { target: "_blank", rel: "noopener" })
+# => "<a href='...' target='_blank' rel='noopener'>link</a>"
+
+# Direct AttributedString conversion
+attr_string = message.attributed_string
+attr_string.to_html             # Rich HTML
+attr_string.to_markdown         # Markdown
+attr_string.bold?               # Formatting checks
+attr_string.link_url            # Extract link URLs
+```
+
+### 🔍 Query Messages with Formatting
+```ruby
+# Find messages with rich formatting
+formatted_messages = Imessage::Db::Message.with_formatting.recent.limit(10)
+
+# Or specifically messages with attributed text data
+attributed_messages = Imessage::Db::Message.with_attributed_text
+
+# Combine with other scopes
+my_formatted_messages = Imessage::Db::Message.from_me
+                                            .with_formatting
+                                            .recent
+```
+
+### 🛡️ Robust & Safe
+- **Infinite loop protection** - Handles malformed binary data safely
+- **Graceful fallback** - Always returns plain text when rich text parsing fails
+- **Production ready** - Comprehensive test coverage with edge cases
+- **Memory efficient** - Processes attributed strings without hanging or crashes
+
+### 🔧 Advanced TypedStream Usage
+```ruby
+# Direct TypedStream API access
+binary_data = message.attributedBody
+if objects = Imessage::Db::TypedStream::Parser.decode(binary_data)
+  puts "Decoded #{objects.length} objects"
+end
+
+# Create AttributedString objects manually
+attr_string = Imessage::Db::TypedStream::AttributedString.new(
+  "Bold text with link",
+  { "NSFont" => "Helvetica-Bold", "NSLink" => "https://example.com" }
+)
+
+puts attr_string.to_h  # => {string: "Bold text...", attributes: {...}}
+```
 
 ## 📦 Installation
 
@@ -217,14 +384,20 @@ puts "Messages with attachments: #{messages_with_files.count}"
 
 ## 🧪 Run the Demo
 
-Try the included example script:
+Try the included example scripts:
 
 ```bash
-# Clone the repo and run the demo
+# Clone the repo and run the main demo
 git clone https://github.com/drnic/imessage-db.git
 cd imessage-db
 bundle install
 bundle exec bin/demo
+
+# Try the TypedStream decoder demo (NEW!)
+ruby examples/typedstream_usage.rb
+
+# Try the HTML/Markdown conversion demo (NEW!)
+ruby examples/html_markdown_conversion.rb
 ```
 
 Or in the console:
@@ -233,7 +406,7 @@ Or in the console:
 bin/console
 ```
 
-This starts an IRB session with the gem loaded, perfect for interactive exploration!
+This starts an IRB session with the gem loaded, perfect for interactive exploration of both basic messaging data and rich text formatting!
 
 ## 🧪 Running Tests
 
@@ -259,24 +432,40 @@ bin/console
 The gem works with these main tables from `~/Library/Messages/chat.db`:
 
 - **`message`** - Individual messages with text, timestamps, service type
-- **`handle`** - Contacts (phone numbers, email addresses)
+  - `text` - Plain text content
+  - `attributedBody` - Binary TypedStream data for rich formatting (NEW!)
+- **`handle`** - Contacts (phone numbers, email addresses)  
 - **`chat`** - Conversation threads
 - **`attachment`** - Files, images, videos sent in messages
 - **Join tables** - `chat_message_join`, `chat_handle_join`, `message_attachment_join`
 
+### TypedStream Integration
+The gem automatically decodes the binary `attributedBody` field using a custom Apple TypedStream parser, giving you access to:
+- **Rich text formatting** (bold, italic, etc.)
+- **Embedded links** and their attributes
+- **Font and style information**
+- **Graceful fallback** to plain text when parsing fails
+
 ## 🛣️ Roadmap
+
+### ✅ Recently Completed
+- **Apple TypedStream Decoder** - Full support for attributed strings and rich text formatting
+- **Rich Text Methods** - `has_bold_text?`, `has_italic_text?`, `has_links?`, etc.
+- **HTML & Markdown Conversion** - `to_html()`, `to_markdown()`, `content_as()` methods
+- **Rails Integration** - Secure HTML rendering with custom link attributes
+- **Infinite Loop Protection** - Robust handling of malformed binary data
+- **Attributed Text Scopes** - `with_formatting` and `with_attributed_text` scopes
 
 ### 🚧 Coming Next
 - **Rails Generators** - `rails g imessage_db:install` for easy setup
-- **Export Helpers** - JSON/CSV export functionality
+- **Export Helpers** - JSON/CSV export functionality with rich text preservation
 - **Schema Version Detection** - Compatibility across macOS versions
 - **Enhanced Attachment Handling** - Better media type detection
 
 ### 🎯 Future Features
-- Export helpers (JSON/CSV)
-- Conversation analytics
-- Tapback/reaction detection
-- Rails admin panel integration
+- Enhanced conversation analytics with formatting insights
+- Advanced TypedStream object support beyond attributed strings
+- Rails admin panel integration with rich text display
 
 ## 🤝 Contributing
 
