@@ -157,16 +157,18 @@ end
 - Fetch attachments and confirm file paths.
 
 ### Current Test Implementation ✅
-- **22 Minitest tests** with 85 assertions covering all functionality
-- **Unit tests** for Apple epoch time conversion, model methods, scopes
+- **49 Minitest tests** with 186 assertions covering all implemented functionality
+- **Unit tests** for Apple epoch time conversion, all model methods, scopes, and associations
 - **Integration tests** that connect to real Messages database (when Full Disk Access enabled)
+- **Complete coverage** for `Message`, `ChatMessage`, `ChatHandle`, and `MessageAttachment` models
+- **Association testing** for foreign key constraints and relationship behavior
 - **Graceful skipping** when Full Disk Access unavailable with helpful messages
-- **Full test coverage** for `Message` model and core utilities
 
 ### Future Test Enhancements
-- Provide sample SQLite `chat.db` (redacted) for CI
+- Add tests for primary models (`Handle`, `Chat`, `Attachment`) as they're implemented
+- Provide sample SQLite `chat.db` (redacted) for CI environments
 - Allow devs to run `IMESSAGE_DB_TEST_PATH=/tmp/chat.db bundle exec rake test`
-- Add tests for additional models (`Handle`, `Chat`, `Attachment`) as they're implemented
+- Add performance tests for large message datasets
 
 ---
 
@@ -183,12 +185,19 @@ end
   - Full Disk Access detection with helpful error messages
   - Read-only database connections with automatic cleanup
   - Connection isolation to preserve existing Rails database configurations
-- [x] **Comprehensive Minitest Test Suite**: 22 tests with 85 assertions covering:
+- [x] **Join Models**: Complete set of association models with clean naming
+  - `ChatMessage` model for chat-message relationships
+  - `ChatHandle` model for chat-participant relationships  
+  - `MessageAttachment` model for message-attachment relationships
+  - All models properly configured with table names and associations
+- [x] **Comprehensive Minitest Test Suite**: 49 tests with 186 assertions covering:
   - Apple epoch time conversion accuracy
   - Message model functionality and convenience methods
+  - All join models (ChatMessage, ChatHandle, MessageAttachment)
   - Database connectivity (when Full Disk Access enabled)
   - All scopes and filtering methods
   - Integration tests with real Messages database
+  - Association behavior and foreign key constraints
 - [x] **Working Example Script**: Demonstrates real usage with actual Messages data
   - Database statistics (message counts, service breakdowns)
   - Recent message display with proper formatting
@@ -196,25 +205,36 @@ end
 - [x] **Full Disk Access Integration**: Proper permission handling and user guidance
 
 ### 🚧 **Next Phase (Remaining Deliverables)**
-- [ ] **Additional ActiveRecord Models**:
-  - `Handle` model for contacts (phone numbers, emails)
-  - `Chat` model for conversations
-  - `Attachment` model for files, images, videos
-  - Join models (`ChatMessage`, `ChatHandle`, `MessageAttachment`)
+- [ ] **Primary ActiveRecord Models**: Core entity models with full functionality
+  - `Handle` model for contacts (phone numbers, emails) with scopes and validation
+  - `Chat` model for conversations with participant management
+  - `Attachment` model for files, images, videos with type detection
 - [ ] **Model Associations**: Complete ActiveRecord relationships between all models
-- [ ] **Extended Scopes & Queries**: Chat-specific and attachment-specific queries
-- [ ] **Rails Generators**: 
-  - `rails g imessage_db:install` for setup instructions
-  - `rails g imessage_db:models` for copying models
-- [ ] **Documentation**: 
+  - `Chat has_many :messages, through: :chat_messages`
+  - `Chat has_many :handles, through: :chat_handles`
+  - `Message has_many :attachments, through: :message_attachments`
+  - `Message belongs_to :handle`
+  - Full bi-directional associations across all models
+- [ ] **Extended Scopes & Queries**: Advanced querying capabilities
+  - `Chat.with_participant(phone_or_email)`
+  - `Message.in_chat(chat).last(n)`
+  - `Attachment.images/videos/files` type scopes
+  - Recent/active conversation detection
+- [ ] **Rails Generators**: Easy setup and model copying
+  - `rails g imessage_db:install` for setup instructions and initializers
+  - `rails g imessage_db:models` for copying models to Rails apps
+- [ ] **Documentation**: Comprehensive user and developer guides
   - README with setup guide, Full Disk Access instructions
-  - Example Rails console walkthrough
-  - API documentation for all models and methods
+  - Example Rails console walkthrough with real queries
+  - API documentation for all models, methods, and scopes
 - [ ] **RubyGem Publication**: Package and publish to RubyGems.org
-- [ ] **Advanced Features**:
-  - Export helpers (JSON/CSV)
+  - Final gem packaging and version tagging
+  - RubyGems.org publication
+- [ ] **Advanced Features**: Enhanced functionality for power users
+  - Export helpers (JSON/CSV for messages and conversations)
   - Schema version detection for macOS compatibility
   - Enhanced attachment grouping and filtering
+  - Conversation analytics (message counts, date ranges, participant activity)
 
 ---
 
