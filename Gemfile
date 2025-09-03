@@ -8,4 +8,6 @@ gemspec
 gem "irb"
 gem "rake", "~> 13.0"
 
-gem "minitest", "~> 5.16"
+gem "rspec", "~> 3.0"
+gem "rails", "~> 7.0"
+gem "sqlite3", "~> 1.4"
