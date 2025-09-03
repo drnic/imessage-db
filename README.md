@@ -49,6 +49,44 @@ Message.with_text                 # Messages with text content
 Message.in_chat(chat)             # Messages in specific chat
 ```
 
+## 🚄 Rails Integration
+
+The gem works seamlessly with Rails applications, maintaining its own database connection separate from your app's database:
+
+```ruby
+# Gemfile
+gem 'imessage-db'
+```
+
+```ruby
+# app/controllers/messages_controller.rb
+class MessagesController < ApplicationController
+  def index
+    @messages = Imessage::Db::Message.recent.limit(50)
+    @stats = {
+      total: Imessage::Db::Message.count,
+      imessage: Imessage::Db::Message.imessage.count,
+      sms: Imessage::Db::Message.sms.count
+    }
+  end
+  
+  def show
+    @chat = Imessage::Db::Chat.find(params[:id])
+    @messages = Imessage::Db::Message.in_chat(@chat).recent
+    @participants = @chat.handles
+  end
+end
+```
+
+**No configuration needed!** The gem:
+- ✅ Automatically connects to Messages database when first accessed
+- ✅ Maintains separate connection pool from your app's database
+- ✅ Works alongside PostgreSQL, MySQL, or any Rails database
+- ✅ All models are namespaced under `Imessage::Db::`
+- ✅ Read-only access ensures your Messages are never modified
+
+Just add the gem and start querying! See [Full Disk Access Setup](#-full-disk-access-setup-required) below for permissions.
+
 ## 📦 Installation
 
 Add to your Gemfile:
@@ -176,23 +214,6 @@ messages_with_files = Imessage::Db::Message.with_attachments
 puts "Messages with attachments: #{messages_with_files.count}"
 ```
 
-### Rails Integration
-
-In a Rails app, the models are automatically available:
-
-```ruby
-# app/controllers/messages_controller.rb
-class MessagesController < ApplicationController
-  def index
-    @messages = Imessage::Db::Message.recent.limit(50)
-    @stats = {
-      total: Imessage::Db::Message.count,
-      imessage: Imessage::Db::Message.imessage.count,
-      sms: Imessage::Db::Message.sms.count
-    }
-  end
-end
-```
 
 ## 🧪 Run the Demo
 
