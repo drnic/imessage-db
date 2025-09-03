@@ -4,6 +4,7 @@ PATH
     imessage-db (0.1.0)
       activerecord (>= 6.1)
       railties (>= 6.1)
+      sqlite3 (~> 1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -249,7 +250,6 @@ DEPENDENCIES
   minitest (~> 5.16)
   rails (~> 7.0)
   rake (~> 13.0)
-  sqlite3 (~> 1.4)
   standardrb (~> 1.0)
 
 BUNDLED WITH
