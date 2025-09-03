@@ -7,8 +7,8 @@ module Imessage
       self.primary_key = "ROWID"
 
       # Associations
-      has_many :message_attachment_joins, class_name: "MessageAttachment", foreign_key: "attachment_id", primary_key: "ROWID"
-      has_many :messages, through: :message_attachment_joins, foreign_key: "attachment_id", primary_key: "ROWID"
+      has_many :message_attachments, foreign_key: "attachment_id", primary_key: "ROWID"
+      has_many :messages, through: :message_attachments, foreign_key: "attachment_id", primary_key: "ROWID"
 
       # Scopes
       scope :images, -> { where("mime_type LIKE ?", "image/%") }
@@ -23,7 +23,7 @@ module Imessage
         return none unless message
 
         message_id = message.is_a?(Message) ? message.ROWID : message
-        joins(:message_attachment_joins).where(message_attachment_join: {message_id: message_id})
+        joins(:message_attachments).where(message_attachment_join: {message_id: message_id})
       }
 
       # Convenience methods

@@ -7,10 +7,10 @@ module Imessage
       self.primary_key = "ROWID"
 
       # Associations
-      has_many :chat_message_joins, class_name: "ChatMessage", foreign_key: "chat_id", primary_key: "ROWID"
-      has_many :messages, through: :chat_message_joins, foreign_key: "chat_id", primary_key: "ROWID"
-      has_many :chat_handle_joins, class_name: "ChatHandle", foreign_key: "chat_id", primary_key: "ROWID"
-      has_many :handles, through: :chat_handle_joins, foreign_key: "chat_id", primary_key: "ROWID"
+      has_many :chat_messages, foreign_key: "chat_id", primary_key: "ROWID"
+      has_many :messages, through: :chat_messages, foreign_key: "chat_id", primary_key: "ROWID"
+      has_many :chat_handles, foreign_key: "chat_id", primary_key: "ROWID"
+      has_many :handles, through: :chat_handles, foreign_key: "chat_id", primary_key: "ROWID"
 
       # Scopes
       scope :by_service, ->(service) { where(service_name: service) }

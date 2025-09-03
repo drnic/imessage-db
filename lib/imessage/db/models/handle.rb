@@ -8,8 +8,8 @@ module Imessage
 
       # Associations
       has_many :messages, foreign_key: "handle_id", primary_key: "ROWID"
-      has_many :chat_handle_joins, class_name: "ChatHandle", foreign_key: "handle_id", primary_key: "ROWID"
-      has_many :chats, through: :chat_handle_joins, foreign_key: "handle_id", primary_key: "ROWID"
+      has_many :chat_handles, foreign_key: "handle_id", primary_key: "ROWID"
+      has_many :chats, through: :chat_handles, foreign_key: "handle_id", primary_key: "ROWID"
 
       # Scopes
       scope :by_service, ->(service) { where(service: service) }
