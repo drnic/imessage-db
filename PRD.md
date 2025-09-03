@@ -156,21 +156,65 @@ end
 - Query chat participants.
 - Fetch attachments and confirm file paths.
 
-### Fixtures
-- Provide sample SQLite `chat.db` (redacted) for CI.
-- Allow devs to run `IMESSAGE_DB_TEST_PATH=/tmp/chat.db bundle exec rspec`.
+### Current Test Implementation ✅
+- **22 Minitest tests** with 85 assertions covering all functionality
+- **Unit tests** for Apple epoch time conversion, model methods, scopes
+- **Integration tests** that connect to real Messages database (when Full Disk Access enabled)
+- **Graceful skipping** when Full Disk Access unavailable with helpful messages
+- **Full test coverage** for `Message` model and core utilities
+
+### Future Test Enhancements
+- Provide sample SQLite `chat.db` (redacted) for CI
+- Allow devs to run `IMESSAGE_DB_TEST_PATH=/tmp/chat.db bundle exec rake test`
+- Add tests for additional models (`Handle`, `Chat`, `Attachment`) as they're implemented
 
 ---
 
-## 8. Deliverables
+## 8. Progress & Deliverables
 
-- [ ] RubyGem `imessage-db` published to RubyGems.org.
-- [ ] README with setup, Full Disk Access, example queries.
-- [ ] ActiveRecord models + associations.
-- [ ] Railtie for Rails auto-integration.
-- [ ] Minitest test suite.
-- [ ] Generator for install/setup.
-- [ ] Example Rails console walkthrough.
+### ✅ **Completed (Phase 1)**
+- [x] **Rails Engine Foundation**: Set up Rails engine structure with proper autoloading and configuration
+- [x] **Message ActiveRecord Model**: Core `Message` model with Apple epoch time conversion
+  - Apple nanosecond timestamp → Ruby `Time` conversion helpers (`sent_at`, `delivered_at`, `read_at`)
+  - Convenience methods (`from_me?`, `to_me?`, `imessage?`, `sms?`, `tapback?`, `reaction?`)
+  - Comprehensive scopes (`recent`, `from_me`, `to_me`, `with_text`, `imessage`, `sms`, etc.)
+  - Single-table inheritance disabled to handle `type` column conflict
+- [x] **Database Connection Management**: Secure connection handling for `~/Library/Messages/chat.db`
+  - Full Disk Access detection with helpful error messages
+  - Read-only database connections with automatic cleanup
+  - Connection isolation to preserve existing Rails database configurations
+- [x] **Comprehensive Minitest Test Suite**: 22 tests with 85 assertions covering:
+  - Apple epoch time conversion accuracy
+  - Message model functionality and convenience methods
+  - Database connectivity (when Full Disk Access enabled)
+  - All scopes and filtering methods
+  - Integration tests with real Messages database
+- [x] **Working Example Script**: Demonstrates real usage with actual Messages data
+  - Database statistics (message counts, service breakdowns)
+  - Recent message display with proper formatting
+  - Time conversion and service type detection
+- [x] **Full Disk Access Integration**: Proper permission handling and user guidance
+
+### 🚧 **Next Phase (Remaining Deliverables)**
+- [ ] **Additional ActiveRecord Models**:
+  - `Handle` model for contacts (phone numbers, emails)
+  - `Chat` model for conversations
+  - `Attachment` model for files, images, videos
+  - Join models (`ChatMessageJoin`, `ChatHandleJoin`, `MessageAttachmentJoin`)
+- [ ] **Model Associations**: Complete ActiveRecord relationships between all models
+- [ ] **Extended Scopes & Queries**: Chat-specific and attachment-specific queries
+- [ ] **Rails Generators**: 
+  - `rails g imessage_db:install` for setup instructions
+  - `rails g imessage_db:models` for copying models
+- [ ] **Documentation**: 
+  - README with setup guide, Full Disk Access instructions
+  - Example Rails console walkthrough
+  - API documentation for all models and methods
+- [ ] **RubyGem Publication**: Package and publish to RubyGems.org
+- [ ] **Advanced Features**:
+  - Export helpers (JSON/CSV)
+  - Schema version detection for macOS compatibility
+  - Enhanced attachment grouping and filtering
 
 ---
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require_relative "lib/imessage/db"
+require_relative "../lib/imessage/db"
 
 puts "🔍 iMessage Database Reader Example"
 puts "=" * 40
@@ -22,36 +22,60 @@ begin
   # Connect to the Messages database
   Imessage::Db::Database.establish_connection!
   puts "✅ Successfully connected to Messages database"
-  
+
   # Get some basic statistics
   total_messages = Imessage::Db::Message.count
   puts "📊 Total messages in database: #{total_messages}"
-  
+
   from_me_count = Imessage::Db::Message.from_me.count
   to_me_count = Imessage::Db::Message.to_me.count
   puts "📤 Messages from me: #{from_me_count}"
   puts "📥 Messages to me: #{to_me_count}"
-  
+
   imessage_count = Imessage::Db::Message.imessage.count
   sms_count = Imessage::Db::Message.sms.count
   puts "💬 iMessages: #{imessage_count}"
   puts "📱 SMS messages: #{sms_count}"
-  
-  puts "\n📝 Recent Messages (last 5):"
-  puts "-" * 40
-  
-  # Show last 5 messages with text
-  Imessage::Db::Message.with_text.recent.limit(5).each do |message|
+
+  # Show statistics for new models
+  total_handles = Imessage::Db::Handle.count
+  total_chats = Imessage::Db::Chat.count
+  total_attachments = Imessage::Db::Attachment.count
+  puts "👥 Total contacts/handles: #{total_handles}"
+  puts "💬 Total chats: #{total_chats}"
+  puts "📎 Total attachments: #{total_attachments}"
+
+  puts "\n📝 Recent Messages with Contact Info (last 5):"
+  puts "-" * 60
+
+  # Show last 5 messages with text and handle information
+  Imessage::Db::Message.with_text.recent.includes(:handle).limit(5).each do |message|
     direction = message.from_me? ? "➡️" : "⬅️"
     service = message.imessage? ? "iMessage" : "SMS"
-    text = message.text&.truncate(60)
+    contact = message.handle&.display_name || "Unknown"
+    text = message.text&.truncate(50)
     time = message.sent_at&.strftime("%Y-%m-%d %H:%M:%S") || "Unknown time"
-    
-    puts "#{direction} [#{service}] #{time}"
+
+    puts "#{direction} [#{service}] #{time} - #{contact}"
     puts "   #{text}"
     puts
   end
-  
+
+  puts "\n🗂️ Sample Chat Information:"
+  puts "-" * 40
+
+  # Show some chat examples
+  Imessage::Db::Chat.limit(3).each do |chat|
+    message_count = chat.messages.count
+    participant_count = chat.handles.count
+    chat_type = chat.group_chat? ? "Group" : "Direct"
+
+    puts "💬 #{chat.title} (#{chat_type})"
+    puts "   #{message_count} messages, #{participant_count} participants"
+    puts "   Service: #{chat.service_name}"
+    puts
+  end
+
 rescue Imessage::Db::Error => e
   puts "❌ Error: #{e.message}"
 rescue => e

@@ -6,6 +6,12 @@ require_relative "db/version"
 require_relative "db/database"
 require_relative "db/models/application_record"
 require_relative "db/models/message"
+require_relative "db/models/handle"
+require_relative "db/models/chat"
+require_relative "db/models/attachment"
+require_relative "db/models/chat_message_join"
+require_relative "db/models/chat_handle_join"
+require_relative "db/models/message_attachment_join"
 require_relative "db/engine" if defined?(Rails::Engine)
 
 module Imessage

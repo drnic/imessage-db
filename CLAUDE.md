@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+See file PRD.md for current plans and next steps.
+
 ## Development Commands
 
 ### Testing
@@ -14,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `bundle install` - Install gem dependencies
 - `bundle exec rake install` - Install gem locally for testing
 
-### Gem Management  
+### Gem Management
 - `bundle exec rake build` - Build the gem package
 - `bundle exec rake release` - Release new version (updates version, creates git tag, publishes to RubyGems)
 
@@ -50,7 +52,7 @@ This is a Rails-compatible RubyGem that provides ActiveRecord models for reading
 
 **Message Model Capabilities**:
 - Convenience methods: `from_me?`, `imessage?`, `sms?`, `tapback?`
-- Time accessors: `sent_at`, `delivered_at`, `read_at` 
+- Time accessors: `sent_at`, `delivered_at`, `read_at`
 - Comprehensive scopes: `recent`, `from_me`, `to_me`, `with_text`, `imessage`, `sms`
 
 **Full Disk Access Integration**: Checks macOS permissions and provides helpful error messages when access is unavailable
@@ -67,7 +69,7 @@ Uses Minitest with a comprehensive test suite that:
 ### Development Notes
 
 - **Read-only database access**: Never modifies Messages database
-- **macOS only**: Requires `~/Library/Messages/chat.db` 
+- **macOS only**: Requires `~/Library/Messages/chat.db`
 - **Full Disk Access required**: Must be enabled in macOS System Settings
 - **Single-table inheritance disabled**: Handles `type` column conflicts in Messages schema
 - **Rails Engine structure**: Enables easy integration with Rails applications

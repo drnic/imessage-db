@@ -7,6 +7,13 @@ module Imessage
       self.primary_key = "ROWID"
       self.inheritance_column = nil # Disable single-table inheritance
 
+      # Associations
+      belongs_to :handle, foreign_key: "handle_id", primary_key: "ROWID", optional: true
+      has_many :chat_message_joins, foreign_key: "message_id", primary_key: "ROWID"
+      has_many :chats, through: :chat_message_joins, foreign_key: "message_id", primary_key: "ROWID"
+      has_many :message_attachment_joins, foreign_key: "message_id", primary_key: "ROWID"
+      has_many :attachments, through: :message_attachment_joins, foreign_key: "message_id", primary_key: "ROWID"
+
       # Convert Apple nanosecond timestamps to Ruby Time objects
       def sent_at
         Imessage::Db.apple_time_to_ruby(date)
