@@ -14,6 +14,7 @@ class TestDatabaseCreator
 
   def create!
     FileUtils.rm_f(TEST_DB_PATH)
+    FileUtils.mkdir_p(File.dirname(TEST_DB_PATH))
 
     db = SQLite3::Database.new(TEST_DB_PATH)
 
