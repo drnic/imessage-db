@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activerecord", ">= 6.1"
   spec.add_dependency "railties", ">= 6.1"
-  spec.add_dependency "sqlite3", "~> 1.0"
+  spec.add_dependency "sqlite3"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

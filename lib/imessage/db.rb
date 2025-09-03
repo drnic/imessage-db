@@ -3,16 +3,6 @@
 require "active_record"
 
 require_relative "db/version"
-require_relative "db/database"
-require_relative "db/models/application_record"
-require_relative "db/models/message"
-require_relative "db/models/handle"
-require_relative "db/models/chat"
-require_relative "db/models/attachment"
-require_relative "db/models/chat_message"
-require_relative "db/models/chat_handle"
-require_relative "db/models/message_attachment"
-require_relative "db/engine" if defined?(Rails::Engine)
 
 module Imessage
   module Db
@@ -45,3 +35,14 @@ module Imessage
     end
   end
 end
+
+require_relative "db/database"
+require_relative "db/models/application_record"
+require_relative "db/models/message"
+require_relative "db/models/handle"
+require_relative "db/models/chat"
+require_relative "db/models/attachment"
+require_relative "db/models/chat_message"
+require_relative "db/models/chat_handle"
+require_relative "db/models/message_attachment"
+require_relative "db/engine" if defined?(Rails::Engine)

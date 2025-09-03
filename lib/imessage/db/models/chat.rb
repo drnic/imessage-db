@@ -7,10 +7,10 @@ module Imessage
       self.primary_key = "ROWID"
 
       # Associations
-      has_many :chat_messages, foreign_key: "chat_id", primary_key: "ROWID"
-      has_many :messages, through: :chat_messages, foreign_key: "chat_id", primary_key: "ROWID"
-      has_many :chat_handles, foreign_key: "chat_id", primary_key: "ROWID"
-      has_many :handles, through: :chat_handles, foreign_key: "chat_id", primary_key: "ROWID"
+      has_many :chat_messages, primary_key: "ROWID"
+      has_many :messages, through: :chat_messages, primary_key: "ROWID"
+      has_many :chat_handles, primary_key: "ROWID"
+      has_many :handles, through: :chat_handles, primary_key: "ROWID"
 
       # Scopes
       scope :by_service, ->(service) { where(service_name: service) }
@@ -22,8 +22,8 @@ module Imessage
       scope :active, -> { recent }
 
       # Find chats with a specific participant (phone or email)
-      scope :with_participant, ->(identifier) {
-        return none unless identifier.present?
+      scope :with_participant, lambda { |identifier|
+        return none if identifier.blank?
 
         # Normalize the identifier (remove non-digits from phone numbers)
         normalized = identifier.to_s.gsub(/[^\d@.]/, "")
@@ -47,11 +47,11 @@ module Imessage
       end
 
       def group_chat?
-        !display_name.nil? && !display_name.empty?
+        display_name.present?
       end
 
       def direct_message?
-        display_name.nil? || display_name.empty?
+        display_name.blank?
       end
 
       def title

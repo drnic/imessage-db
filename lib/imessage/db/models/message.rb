@@ -8,11 +8,12 @@ module Imessage
       self.inheritance_column = nil # Disable single-table inheritance
 
       # Associations
-      belongs_to :handle, foreign_key: "handle_id", primary_key: "ROWID", optional: true
-      has_many :chat_messages, foreign_key: "message_id", primary_key: "ROWID"
-      has_many :chats, through: :chat_messages, foreign_key: "message_id", primary_key: "ROWID"
-      has_many :message_attachments, foreign_key: "message_id", primary_key: "ROWID"
-      has_many :attachments, through: :message_attachments, foreign_key: "message_id", primary_key: "ROWID"
+      belongs_to :handle, primary_key: "ROWID", optional: true
+      belongs_to :chat, primary_key: "ROWID"
+      has_many :chat_messages, primary_key: "ROWID"
+      has_many :chats, through: :chat_messages, primary_key: "ROWID"
+      has_many :message_attachments, primary_key: "ROWID"
+      has_many :attachments, through: :message_attachments, primary_key: "ROWID"
 
       # Convert Apple nanosecond timestamps to Ruby Time objects
       def sent_at
@@ -41,11 +42,11 @@ module Imessage
       scope :sms, -> { where(service: "SMS") }
 
       # Find messages in a specific chat
-      scope :in_chat, ->(chat) {
+      scope :in_chat, lambda { |chat|
         return none unless chat
 
         chat_id = chat.is_a?(Chat) ? chat.ROWID : chat
-        joins(:chat_messages).where(chat_message_join: {chat_id: chat_id})
+        joins(:chat_messages).where(chat_messages: {chat_id: chat_id})
       }
 
       # Convenience methods
@@ -54,7 +55,7 @@ module Imessage
       end
 
       def to_me?
-        is_from_me == 0
+        is_from_me.zero?
       end
 
       def delivered?
