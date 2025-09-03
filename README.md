@@ -467,6 +467,31 @@ The gem automatically decodes the binary `attributedBody` field using a custom A
 - Advanced TypedStream object support beyond attributed strings
 - Rails admin panel integration with rich text display
 
+## 🛠️ Development Commands
+
+For contributors working on the TypedStream parser, this project includes Claude Code commands to streamline debugging:
+
+### `/add-typestream-failure <message_id>`
+
+Automated workflow for debugging TypedStream parsing failures:
+
+```bash
+# Example: Debug message 155197 that's not parsing correctly
+/add-typestream-failure 155197
+```
+
+**What it does**:
+1. 📸 Prompts for screenshots of the original iMessage and current failed output
+2. 🗄️ Extracts raw TypedStream binary data from your chat.db
+3. ✅ Adds a failing test case to `test/typedstream/test_extracted_real_data.rb`
+4. 🧪 Runs the test to confirm the failure
+5. 🔍 Analyzes the binary data and attempts to fix the parser
+6. ✅ Validates the fix with the full test suite
+
+This command helps quickly identify and fix edge cases in real-world iMessage data that the parser doesn't handle correctly.
+
+**Prerequisites**: Full Disk Access enabled and valid message ID from your database.
+
 ## 🤝 Contributing
 
 We'd love your help! Here's how to contribute:
