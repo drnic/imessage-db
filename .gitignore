@@ -9,3 +9,4 @@
 /db/test.db
 Gemfile.lock
 *.local.json
+.DS_Store
