@@ -23,7 +23,7 @@ This gem is **not for App Store distribution** and is **single-user / local only
    - `Handle`
    - `Chat`
    - `Attachment`
-   - Join models (`ChatMessageJoin`, `ChatHandleJoin`, `MessageAttachmentJoin`).
+   - Join models (`ChatMessage`, `ChatHandle`, `MessageAttachment`).
 2. **Associations**:
    - `Chat has_many :messages`
    - `Chat has_many :handles`
@@ -200,7 +200,7 @@ end
   - `Handle` model for contacts (phone numbers, emails)
   - `Chat` model for conversations
   - `Attachment` model for files, images, videos
-  - Join models (`ChatMessageJoin`, `ChatHandleJoin`, `MessageAttachmentJoin`)
+  - Join models (`ChatMessage`, `ChatHandle`, `MessageAttachment`)
 - [ ] **Model Associations**: Complete ActiveRecord relationships between all models
 - [ ] **Extended Scopes & Queries**: Chat-specific and attachment-specific queries
 - [ ] **Rails Generators**: 

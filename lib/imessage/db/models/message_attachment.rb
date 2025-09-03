@@ -2,7 +2,7 @@
 
 module Imessage
   module Db
-    class MessageAttachmentJoin < ApplicationRecord
+    class MessageAttachment < ApplicationRecord
       self.table_name = "message_attachment_join"
       self.primary_key = "message_id" # Composite key, but ActiveRecord needs a primary key
 

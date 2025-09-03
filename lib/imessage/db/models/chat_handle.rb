@@ -2,7 +2,7 @@
 
 module Imessage
   module Db
-    class ChatHandleJoin < ApplicationRecord
+    class ChatHandle < ApplicationRecord
       self.table_name = "chat_handle_join"
       self.primary_key = "chat_id" # Composite key, but ActiveRecord needs a primary key
 
