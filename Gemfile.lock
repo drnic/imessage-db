@@ -87,7 +87,6 @@ GEM
     connection_pool (2.5.4)
     crass (1.0.6)
     date (3.4.1)
-    diff-lcs (1.6.2)
     drb (2.2.3)
     erb (5.0.2)
     erubi (1.13.1)
@@ -178,19 +177,6 @@ GEM
       psych (>= 4.0.0)
     reline (0.6.2)
       io-console (~> 0.5)
-    rspec (3.13.1)
-      rspec-core (~> 3.13.0)
-      rspec-expectations (~> 3.13.0)
-      rspec-mocks (~> 3.13.0)
-    rspec-core (3.13.5)
-      rspec-support (~> 3.13.0)
-    rspec-expectations (3.13.5)
-      diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.13.0)
-    rspec-mocks (3.13.5)
-      diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.13.0)
-    rspec-support (3.13.5)
     securerandom (0.4.1)
     sqlite3 (1.7.3)
       mini_portile2 (~> 2.8.0)
@@ -213,9 +199,9 @@ PLATFORMS
 DEPENDENCIES
   imessage-db!
   irb
+  minitest (~> 5.16)
   rails (~> 7.0)
   rake (~> 13.0)
-  rspec (~> 3.0)
   sqlite3 (~> 1.4)
 
 BUNDLED WITH

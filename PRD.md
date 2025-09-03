@@ -168,7 +168,7 @@ end
 - [ ] README with setup, Full Disk Access, example queries.
 - [ ] ActiveRecord models + associations.
 - [ ] Railtie for Rails auto-integration.
-- [ ] RSpec test suite.
+- [ ] Minitest test suite.
 - [ ] Generator for install/setup.
 - [ ] Example Rails console walkthrough.
 
