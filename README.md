@@ -69,7 +69,7 @@ class MessagesController < ApplicationController
       sms: Imessage::Db::Message.sms.count
     }
   end
-  
+
   def show
     @chat = Imessage::Db::Chat.find(params[:id])
     @messages = Imessage::Db::Message.in_chat(@chat).recent
@@ -92,7 +92,7 @@ Just add the gem and start querying! See [Full Disk Access Setup](#-full-disk-ac
 Add to your Gemfile:
 
 ```ruby
-bundle add imessage-db
+bundle add imessage-db --github drnic/imessage-db --branch develop
 ```
 
 ## 🔐 Full Disk Access Setup (Required)
