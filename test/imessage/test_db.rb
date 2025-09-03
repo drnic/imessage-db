@@ -35,9 +35,21 @@ class Imessage::DbTest < Minitest::Test
     assert_includes [true, false], result
   end
 
-  def test_chat_db_path_returns_correct_path
-    expected_path = File.expand_path("~/Library/Messages/chat.db")
+  def test_chat_db_path_returns_test_path_when_set
+    # In test environment, we've set it to use the test database
+    expected_path = File.expand_path("../../db/test.db", __dir__)
     assert_equal expected_path, Imessage::Db.chat_db_path
+  end
+  
+  def test_chat_db_path_assignment_works
+    original_path = Imessage::Db.chat_db_path
+    custom_path = "/tmp/custom_chat.db"
+    
+    Imessage::Db.chat_db_path = custom_path
+    assert_equal custom_path, Imessage::Db.chat_db_path
+    
+    # Restore original path
+    Imessage::Db.chat_db_path = original_path
   end
 
   def test_apple_epoch_constant_defined

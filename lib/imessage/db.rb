@@ -36,7 +36,12 @@ module Imessage
     
     # Get the path to the Messages database
     def self.chat_db_path
-      File.expand_path("~/Library/Messages/chat.db")
+      @chat_db_path || ENV["IMESSAGE_DB_PATH"] || File.expand_path("~/Library/Messages/chat.db")
+    end
+    
+    # Set a custom path to the Messages database
+    def self.chat_db_path=(path)
+      @chat_db_path = path
     end
   end
 end

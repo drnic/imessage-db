@@ -7,8 +7,12 @@ See file PRD.md for current plans and next steps.
 ## Development Commands
 
 ### Testing
-- `rake test` or `bundle exec rake test` - Run the full Minitest test suite (22 tests with 85 assertions)
+- `rake test` or `bundle exec rake test` - Run the full Minitest test suite (50 tests with 147 assertions)
+  - Automatically creates test database (`db/test.db`) on first run if it doesn't exist
+  - Tests run against sample database with fixture data (no Full Disk Access required)
 - `ruby test/models/test_message.rb` - Run specific test file
+- `ruby test/fixtures/create_test_db.rb` - Manually recreate the test database
+- `IMESSAGE_DB_PATH=/custom/path rake test` - Run tests with custom database path
 - `bin/console` - Start IRB console with gem loaded for interactive testing
 
 ### Setup
@@ -62,9 +66,10 @@ This is a Rails-compatible RubyGem that provides ActiveRecord models for reading
 Uses Minitest with a comprehensive test suite that:
 - Tests Apple epoch time conversion accuracy
 - Validates all Message model methods and scopes
-- Runs integration tests against real Messages database (when Full Disk Access enabled)
-- Gracefully skips database-dependent tests when permissions unavailable
-- Provides helpful error messages for setup requirements
+- Runs integration tests against sample test database (`db/test.db`)
+- Automatically creates test database with fixture data on first run
+- No longer requires Full Disk Access for running tests
+- Supports custom database paths via `IMESSAGE_DB_PATH` environment variable or `Imessage::Db.chat_db_path=`
 
 ### Development Notes
 
