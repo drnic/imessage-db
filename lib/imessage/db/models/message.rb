@@ -41,6 +41,10 @@ module Imessage
       scope :imessage, -> { where(service: "iMessage") }
       scope :sms, -> { where(service: "SMS") }
 
+      # Attributed text scopes
+      scope :with_attributed_text, -> { where.not(attributedBody: [nil, ""]) }
+      scope :with_formatting, -> { with_attributed_text }
+
       # Find messages in a specific chat
       scope :in_chat, lambda { |chat|
         return none unless chat
@@ -89,6 +93,67 @@ module Imessage
 
       def reaction?
         tapback?
+      end
+
+      # TypedStream Integration for attributed string content
+
+      # Parse attributed string from attributedBody field
+      def attributed_text
+        return nil unless attributedBody && !attributedBody.empty?
+
+        begin
+          # attributedBody contains typedstream binary data
+          decoded = Imessage::Db::TypedStream::Parser.parse_attributed_string(attributedBody)
+          return decoded.plain_text if decoded
+        rescue
+          # Fall back to plain text if parsing fails
+        end
+
+        text
+      end
+
+      # Get full attributed string object with formatting
+      def attributed_string
+        return nil unless attributedBody
+
+        begin
+          Imessage::Db::TypedStream::Parser.parse_attributed_string(attributedBody)
+        rescue
+          nil
+        end
+      end
+
+      # Check if message has rich formatting
+      def has_attributed_text?
+        !attributedBody.nil? && attributedBody.length > 0
+      end
+
+      # Get the best available text content (attributed or plain)
+      def content
+        attributed_text || text
+      end
+
+      # Get formatting attributes if available
+      def text_attributes
+        attributed_string&.attributes || {}
+      end
+
+      # Check if message contains specific formatting
+      def has_formatting?
+        has_attributed_text? && !text_attributes.empty?
+      end
+
+      # Convenience methods for common formatting checks
+      def has_bold_text?
+        text_attributes.any? { |key, value| key.to_s =~ /bold/i || value.to_s =~ /bold/i }
+      end
+
+      def has_italic_text?
+        text_attributes.any? { |key, value| key.to_s =~ /italic/i || value.to_s =~ /italic/i }
+      end
+
+      def has_links?
+        text_attributes.any? { |key, value| key.to_s =~ /link|url/i || value.to_s =~ /link|url/i }
       end
     end
   end

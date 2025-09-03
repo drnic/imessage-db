@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ruby test:*)"
+      "Bash(ruby test:*)",
+      "WebFetch(domain:chrissardegna.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(sqlite3:*)",
+      "Bash(ruby:*)"
     ],
     "deny": [],
     "ask": []

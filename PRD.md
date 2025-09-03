@@ -43,6 +43,12 @@ This gem is **not for App Store distribution** and is **single-user / local only
 6. **Rails integration**:
    - Provide a Railtie to autoload models.
    - Provide a generator to copy over initializers/config.
+7. **CLI web app**:
+   - Sinatra web chat app
+   - Sidebar of chats
+   - Main view shows selected chat conversation
+8. **Decode typescream**:
+   - Some Messages contain proprietary Apple Typestream
 
 ### Stretch Features
 - Export helpers (JSON/CSV for messages).

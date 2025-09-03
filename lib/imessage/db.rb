@@ -37,6 +37,7 @@ module Imessage
 end
 
 require_relative "db/database"
+require_relative "db/typedstream"
 require_relative "db/models/application_record"
 require_relative "db/models/message"
 require_relative "db/models/handle"

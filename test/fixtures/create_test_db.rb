@@ -55,6 +55,7 @@ class TestDatabaseCreator
         ROWID INTEGER PRIMARY KEY AUTOINCREMENT,
         handle_id INTEGER,
         text TEXT,
+        attributedBody BLOB,
         service TEXT,
         date INTEGER,
         date_delivered INTEGER,
