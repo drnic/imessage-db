@@ -19,12 +19,13 @@ A RubyGem that provides **Rails-friendly ActiveRecord models** for reading your 
 
 ## 🚀 Current Features
 
-### ✅ What's Implemented (Phase 1)
-- **Message Model**: Complete ActiveRecord model with time conversion and scopes
+### ✅ What's Implemented
+- **All Core Models**: `Message`, `Chat`, `Handle`, `Attachment` with full associations
 - **Join Models**: `ChatMessage`, `ChatHandle`, `MessageAttachment` associations
 - **Apple Time Conversion**: Automatic conversion from Apple epoch to Ruby Time
 - **Database Connection**: Secure, read-only access with permission detection
-- **Comprehensive Testing**: 49 tests with 186 assertions
+- **Extended Scopes**: Advanced querying with `Chat.with_participant`, `Message.in_chat`, etc.
+- **Comprehensive Testing**: 105 tests with 245 assertions
 - **Rails Engine**: Drop-in compatibility with Rails applications
 
 ### 🔧 Core Message Capabilities
@@ -44,8 +45,8 @@ message.tapback?     # => true (reactions like ❤️, 👍, etc)
 Message.recent.limit(10)           # Last 10 messages
 Message.from_me.imessage          # Your iMessages
 Message.to_me.sms                 # SMS you received
-Message.with_text("hello")        # Messages containing text
-Message.sent_after(1.week.ago)    # Recent conversations
+Message.with_text                 # Messages with text content
+Message.in_chat(chat)             # Messages in specific chat
 ```
 
 ## 📦 Installation
@@ -124,16 +125,30 @@ Imessage::Db::Message.recent.limit(5).each do |msg|
 end
 ```
 
+### Working with Chats and Participants
+
+```ruby
+# Find chats with a specific participant
+chats = Imessage::Db::Chat.with_participant("+1234567890")
+puts "Found #{chats.count} chats with this person"
+
+# Get recent/active chats
+recent_chats = Imessage::Db::Chat.recent.limit(10)
+recent_chats.each do |chat|
+  puts "#{chat.title}: #{chat.messages.count} messages"
+end
+
+# Messages in a specific chat
+chat = Imessage::Db::Chat.first
+messages = Imessage::Db::Message.in_chat(chat).recent.limit(20)
+```
+
 ### Finding Specific Messages
 
 ```ruby
-# Messages containing specific text
-birthday_msgs = Imessage::Db::Message.with_text("happy birthday")
-puts "Found #{birthday_msgs.count} birthday messages"
-
-# Messages from last week
-recent = Imessage::Db::Message.sent_after(1.week.ago)
-puts "Messages from last week: #{recent.count}"
+# Messages with text content
+text_messages = Imessage::Db::Message.with_text
+puts "Messages with text: #{text_messages.count}"
 
 # Your sent iMessages vs SMS breakdown
 my_imessages = Imessage::Db::Message.from_me.imessage.count
@@ -141,16 +156,23 @@ my_sms = Imessage::Db::Message.from_me.sms.count
 puts "You sent #{my_imessages} iMessages and #{my_sms} SMS messages"
 ```
 
-### Working with Join Models
+### Working with Attachments
 
 ```ruby
-# Find messages in specific chats (using join model)
-chat_messages = Imessage::Db::ChatMessage.includes(:message)
-  .joins(:message)
-  .where(messages: { text: "hello" })
+# Find different types of attachments
+images = Imessage::Db::Attachment.images
+videos = Imessage::Db::Attachment.videos
+documents = Imessage::Db::Attachment.files  # Non-media files
+
+# Attachments for a specific message
+message = Imessage::Db::Message.with_attachments.first
+attachments = Imessage::Db::Attachment.for_message(message)
+attachments.each do |attachment|
+  puts "#{attachment.file_type_description}: #{attachment.display_name} (#{attachment.file_size_mb} MB)"
+end
 
 # Messages with attachments
-messages_with_files = Imessage::Db::MessageAttachment.includes(:message)
+messages_with_files = Imessage::Db::Message.with_attachments
 puts "Messages with attachments: #{messages_with_files.count}"
 ```
 
@@ -223,13 +245,11 @@ The gem works with these main tables from `~/Library/Messages/chat.db`:
 
 ## 🛣️ Roadmap
 
-### 🚧 Coming Next (Phase 2)
-- **Handle Model** - Contact/participant management
-- **Chat Model** - Full conversation threading
-- **Attachment Model** - File/media handling
-- **Full Associations** - `Chat has_many :messages`, etc.
-- **Rails Generators** - `rails g imessage_db:install`
-- **Advanced Scopes** - `Chat.with_participant("+1234567890")`
+### 🚧 Coming Next
+- **Rails Generators** - `rails g imessage_db:install` for easy setup
+- **Export Helpers** - JSON/CSV export functionality
+- **Schema Version Detection** - Compatibility across macOS versions
+- **Enhanced Attachment Handling** - Better media type detection
 
 ### 🎯 Future Features
 - Export helpers (JSON/CSV)
@@ -281,12 +301,12 @@ bin/console
 
 ### What We Need Help With
 
-- 📝 **Models**: Implementing `Handle`, `Chat`, `Attachment` models
-- 🔗 **Associations**: Setting up full ActiveRecord relationships
-- 🎨 **Scopes**: Advanced querying capabilities
+- 📦 **Rails Generators**: Creating setup and model generators
+- 📊 **Export Features**: JSON/CSV export functionality
 - 🧪 **Tests**: Additional test coverage and edge cases
-- 📚 **Documentation**: Usage examples and guides
-- 🐛 **Bug fixes**: macOS compatibility issues
+- 📚 **Documentation**: More usage examples and guides
+- 🐛 **Bug fixes**: macOS compatibility across versions
+- 🎨 **UI Components**: Optional Rails view helpers
 
 ### Code Style
 

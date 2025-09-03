@@ -204,7 +204,7 @@ end
   - Time conversion and service type detection
 - [x] **Full Disk Access Integration**: Proper permission handling and user guidance
 
-### 🚧 **Next Phase (Remaining Deliverables)**
+### ✅ **Completed (Phase 2)**
 - [x] **Primary ActiveRecord Models**: Core entity models with full functionality
   - `Handle` model for contacts (phone numbers, emails) with scopes and validation
   - `Chat` model for conversations with participant management
@@ -215,18 +215,20 @@ end
   - `Message has_many :attachments, through: :message_attachments`
   - `Message belongs_to :handle`
   - Full bi-directional associations across all models
-- [ ] **Extended Scopes & Queries**: Advanced querying capabilities
-  - `Chat.with_participant(phone_or_email)`
-  - `Message.in_chat(chat).last(n)`
-  - `Attachment.images/videos/files` type scopes
-  - Recent/active conversation detection
+- [x] **Extended Scopes & Queries**: Advanced querying capabilities
+  - `Chat.with_participant(phone_or_email)` - Find chats with specific participants
+  - `Message.in_chat(chat)` - Find messages in a specific chat
+  - `Attachment.images/videos/files` type scopes for media filtering
+  - `Chat.recent/active` - Recent/active conversation detection
+  - `Attachment.for_message(message)` - Attachments for specific messages
+### 🚧 **Next Phase (Remaining Deliverables)**
 - [ ] **Rails Generators**: Easy setup and model copying
   - `rails g imessage_db:install` for setup instructions and initializers
   - `rails g imessage_db:models` for copying models to Rails apps
-- [ ] **Documentation**: Comprehensive user and developer guides
-  - README with setup guide, Full Disk Access instructions
-  - Example Rails console walkthrough with real queries
+- [ ] **Documentation**: Additional guides and examples
+  - Example Rails app with views showing conversations
   - API documentation for all models, methods, and scopes
+  - Video tutorial for setup and usage
 - [ ] **RubyGem Publication**: Package and publish to RubyGems.org
   - Final gem packaging and version tagging
   - RubyGems.org publication
